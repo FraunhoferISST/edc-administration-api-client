@@ -21,6 +21,8 @@ import okhttp3.RequestBody;
 import org.eclipse.dataspace.client.edc.api.administration.domain.ProxyRequest;
 import org.eclipse.dataspace.client.edc.api.administration.domain.ProxyResponse;
 import org.eclipse.dataspace.client.edc.api.administration.exception.ProxyException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import tools.jackson.core.type.TypeReference;
@@ -34,6 +36,8 @@ public class ProxyService {
 
     private final TypeReference<Map<String, Object>> STRING_OBJECT_MAP = new TypeReference<>() {
     };
+
+    private final Logger logger = LoggerFactory.getLogger(ProxyService.class);
 
     private final String controlPlaneBaseUrl;
     private final String identityHubBaseUrl;
@@ -92,7 +96,9 @@ public class ProxyService {
 
             return responseBuilder.build();
         } catch (IOException e) {
-            throw new ProxyException("Failed to proxy request to backend service.", e);
+            var message = "Failed to proxy request to backend service.";
+            logger.error(message, e);
+            throw new ProxyException(message, e);
         }
     }
 

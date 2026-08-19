@@ -20,6 +20,8 @@ import okhttp3.FormBody;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import org.eclipse.dataspace.client.edc.api.administration.exception.TokenExchangeException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -50,6 +52,8 @@ public class TokenExchangeService {
     private final TypeReference<Map<String, String>> STRING_MAP = new TypeReference<>() {
     };
 
+    private final Logger logger = LoggerFactory.getLogger(TokenExchangeService.class);
+
     private final String jwtletTokenUrl;
     private final String saTokenMountPath;
     private final ResourceLoader resourceLoader;
@@ -70,7 +74,9 @@ public class TokenExchangeService {
     public String exchangeToken(Jwt jwt) throws TokenExchangeException {
         var participantContextId = jwt.getClaimAsString(PARTICIPANT_CONTEXT_ID_CLAIM);
         if (participantContextId == null) {
-            throw new TokenExchangeException("Missing '%s' claim in JWT.".formatted(PARTICIPANT_CONTEXT_ID_CLAIM));
+            var message = "Missing '%s' claim in JWT.".formatted(PARTICIPANT_CONTEXT_ID_CLAIM);
+            logger.error(message);
+            throw new TokenExchangeException(message);
         }
 
         // own SA token
@@ -86,12 +92,18 @@ public class TokenExchangeService {
                     return jsonResponse.get("access_token");
                 }
 
-                throw new TokenExchangeException("Missing 'access_token' in token exchange response.");
+                var message = "Missing 'access_token' in token exchange response.";
+                logger.error(message);
+                throw new TokenExchangeException(message);
             } else {
-                throw new TokenExchangeException("Token exchange failed with status code: " + response.code());
+                var message = "Token exchange failed with status code: " + response.code();
+                logger.error(message);
+                throw new TokenExchangeException(message);
             }
         } catch (IOException e) {
-            throw new TokenExchangeException("Failed to request token exchange from JWTlet.", e);
+            var message = "Failed to request token exchange from JWTlet.";
+            logger.error(message, e);
+            throw new TokenExchangeException(message, e);
         }
     }
 
@@ -100,7 +112,9 @@ public class TokenExchangeService {
         try (var reader = new InputStreamReader(file.getInputStream(), UTF_8)) {
             return FileCopyUtils.copyToString(reader).trim();
         } catch (IOException e) {
-            throw new TokenExchangeException("Failed to read Service Account token.", e);
+            var message = "Failed to read Service Account token";
+            logger.error(message, e);
+            throw new TokenExchangeException(message, e);
         }
     }
 
