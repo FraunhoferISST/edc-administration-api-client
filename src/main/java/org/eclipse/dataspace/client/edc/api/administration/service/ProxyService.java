@@ -20,6 +20,7 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import org.eclipse.dataspace.client.edc.api.administration.domain.ProxyRequest;
 import org.eclipse.dataspace.client.edc.api.administration.domain.ProxyResponse;
+import org.eclipse.dataspace.client.edc.api.administration.exception.ProxyException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import tools.jackson.core.type.TypeReference;
@@ -41,9 +42,9 @@ public class ProxyService {
     private final ObjectMapper objectMapper;
     private final OkHttpClient httpClient;
 
-    public ProxyService(@Value("${controlplane.url}") String controlPlaneBaseUrl,
-                        @Value("${identityhub.url}") String identityHubBaseUrl,
-                        @Value("${issuerservice.url}") String issuerServiceBaseUrl,
+    public ProxyService(@Value("${edc.url.controlplane}") String controlPlaneBaseUrl,
+                        @Value("${edc.url.identityhub}") String identityHubBaseUrl,
+                        @Value("${edc.url.issuerservice}") String issuerServiceBaseUrl,
                         ObjectMapper objectMapper, OkHttpClient httpClient) {
         this.controlPlaneBaseUrl = controlPlaneBaseUrl;
         this.identityHubBaseUrl = identityHubBaseUrl;
@@ -52,21 +53,24 @@ public class ProxyService {
         this.httpClient = httpClient;
     }
 
-    public ProxyResponse proxyControlPlaneRequest(ProxyRequest proxyRequest) {
+    public ProxyResponse proxyControlPlaneRequest(ProxyRequest proxyRequest) throws ProxyException {
         return proxyRequest(proxyRequest, controlPlaneBaseUrl);
     }
 
-    public ProxyResponse proxyIdentityHubRequest(ProxyRequest proxyRequest) {
+    public ProxyResponse proxyIdentityHubRequest(ProxyRequest proxyRequest) throws ProxyException {
         return proxyRequest(proxyRequest, identityHubBaseUrl);
     }
 
-    public ProxyResponse proxyIssuerServiceRequest(ProxyRequest proxyRequest) {
+    public ProxyResponse proxyIssuerServiceRequest(ProxyRequest proxyRequest) throws ProxyException {
         return proxyRequest(proxyRequest, issuerServiceBaseUrl);
     }
 
-    private ProxyResponse proxyRequest(ProxyRequest proxyRequest, String baseUrl) {
+    private ProxyResponse proxyRequest(ProxyRequest proxyRequest, String baseUrl) throws ProxyException {
         var requestBuilder = new Request.Builder()
                 .url(requestUrl(baseUrl, proxyRequest.path(), proxyRequest.queryParams()));
+
+        proxyRequest.headers().forEach(requestBuilder::addHeader);
+        requestBuilder.addHeader("Authorization", "Bearer " + proxyRequest.token());
 
         if (proxyRequest.requestBody() != null) {
             var body = RequestBody.create(objectMapper.writeValueAsString(proxyRequest.requestBody()), MediaType.get(proxyRequest.contentType()));
@@ -76,25 +80,19 @@ public class ProxyService {
         }
 
         try(var response = httpClient.newCall(requestBuilder.build()).execute()) {
-            if (response.isSuccessful()) {
-                var responseBuilder = new ProxyResponse.Builder()
-                        .statusCode(response.code());
+            var responseBuilder = new ProxyResponse.Builder()
+                    .statusCode(response.code());
 
-                response.headers().forEach(header -> responseBuilder.header(header.getFirst(), header.getSecond()));
+            response.headers().forEach(header -> responseBuilder.header(header.getFirst(), header.getSecond()));
 
-                if (response.body() != null) {
-                    var responseBody = response.body().string();
-                    responseBuilder.responseBody(objectMapper.readValue(responseBody, STRING_OBJECT_MAP));
-                }
-
-                return responseBuilder.build();
+            if (response.body() != null) {
+                var responseBody = response.body().string();
+                responseBuilder.responseBody(objectMapper.readValue(responseBody, STRING_OBJECT_MAP));
             }
 
-            //TODO error handling
-            return null;
+            return responseBuilder.build();
         } catch (IOException e) {
-            //TODO error handling
-            throw new RuntimeException(e);
+            throw new ProxyException("Failed to proxy request to backend service.", e);
         }
     }
 

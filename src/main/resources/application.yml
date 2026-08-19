@@ -1,1 +1,17 @@
-
+edc:
+  url:
+    controlplane: https://<control-plane-host>
+    identityhub: https://<identity-hub-host>
+    issuerservice: https://<issuer-service-host>
+tokenexchange:
+  jwtlet:
+    url: https://<jwtlet-host>
+  serviceaccount:
+    token:
+      mountpath: /var/run/secrets/edc/serviceaccount/token
+spring:
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: https://<keycloak-host>/realms/<your-realm-name>

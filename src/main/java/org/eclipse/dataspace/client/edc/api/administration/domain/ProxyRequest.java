@@ -20,11 +20,25 @@ import java.util.Objects;
 
 public class ProxyRequest {
 
+    private Service service;
+    private String token;
     private String httpMethod;
     private String path;
     private String queryParams;
     private Map<String, String> headers = new HashMap<>();
     private Map<String, Object> requestBody;
+
+    public enum Service {
+        CONTROL_PLANE, IDENTITY_HUB, ISSUER_SERVICE
+    }
+
+    public Service service() {
+        return service;
+    }
+
+    public String token() {
+        return token;
+    }
 
     public String httpMethod() {
         return httpMethod;
@@ -57,6 +71,16 @@ public class ProxyRequest {
             this.request = new ProxyRequest();
         }
 
+        public Builder service(Service service) {
+            this.request.service = service;
+            return this;
+        }
+
+        public Builder token(String token) {
+            this.request.token = token;
+            return this;
+        }
+
         public Builder httpMethod(String httpMethod) {
             this.request.httpMethod = httpMethod;
             return this;
@@ -83,6 +107,8 @@ public class ProxyRequest {
         }
 
         public ProxyRequest build() {
+            Objects.requireNonNull(this.request.service, "Service must not be null");
+            Objects.requireNonNull(this.request.token, "Token must not be null");
             Objects.requireNonNull(this.request.httpMethod, "HTTP method must not be null");
             Objects.requireNonNull(this.request.path, "Path must not be null");
             return this.request;
