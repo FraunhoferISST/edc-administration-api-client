@@ -38,6 +38,7 @@ import static org.eclipse.dataspace.client.edc.api.administration.domain.ProxyRe
 import static org.eclipse.dataspace.client.edc.api.administration.domain.ProxyRequest.Service.ISSUER_SERVICE;
 import static org.springframework.web.bind.annotation.RequestMethod.DELETE;
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
+import static org.springframework.web.bind.annotation.RequestMethod.OPTIONS;
 import static org.springframework.web.bind.annotation.RequestMethod.POST;
 import static org.springframework.web.bind.annotation.RequestMethod.PUT;
 
@@ -53,7 +54,7 @@ public class ProxyController {
         this.proxyService = proxyService;
     }
 
-    @RequestMapping(value = CONTROL_PLANE_PROXY_BASE_PATH + "/**", method = {GET, POST, PUT, DELETE})
+    @RequestMapping(value = CONTROL_PLANE_PROXY_BASE_PATH + "/**", method = {OPTIONS, GET, POST, PUT, DELETE})
     public ResponseEntity<Map<String, Object>> proxyControlPlaneRequest(@AuthenticationPrincipal Jwt jwt,
                                                                         @RequestBody(required = false) Map<String, Object> requestBody,
                                                                         HttpServletRequest request) throws TokenExchangeException, ProxyException {
@@ -64,7 +65,7 @@ public class ProxyController {
         return toResponseEntity(proxyResponse);
     }
 
-    @RequestMapping(value = IDENTITY_HUB_PROXY_BASE_PATH + "/**", method = {GET, POST, PUT, DELETE})
+    @RequestMapping(value = IDENTITY_HUB_PROXY_BASE_PATH + "/**", method = {OPTIONS, GET, POST, PUT, DELETE})
     public ResponseEntity<Map<String, Object>> proxyIdentityHubRequest(@AuthenticationPrincipal Jwt jwt,
                                                                        @RequestBody(required = false) Map<String, Object> requestBody,
                                                                        HttpServletRequest request) throws TokenExchangeException, ProxyException {
@@ -75,7 +76,7 @@ public class ProxyController {
         return toResponseEntity(proxyResponse);
     }
 
-    @RequestMapping(value = ISSUER_SERVICE_PROXY_BASE_PATH + "/**", method = {GET, POST, PUT, DELETE})
+    @RequestMapping(value = ISSUER_SERVICE_PROXY_BASE_PATH + "/**", method = {OPTIONS, GET, POST, PUT, DELETE})
     public ResponseEntity<Map<String, Object>> proxyIssuerServiceRequest(@AuthenticationPrincipal Jwt jwt,
                                                                          @RequestBody(required = false) Map<String, Object> requestBody,
                                                                          HttpServletRequest request) throws TokenExchangeException, ProxyException {
