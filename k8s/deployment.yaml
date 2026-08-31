@@ -1,0 +1,34 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: edc-administration-api-client
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: edc-administration-api-client
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: edc-administration-api-client
+    spec:
+      serviceAccountName: edc-administration-api-client
+      containers:
+        - name: edc-proxy
+          image: edc-proxy:local
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
+              name: http
+          env:
+            - name: SPRING_CONFIG_ADDITIONAL_LOCATION
+              value: /config/
+          volumeMounts:
+            - name: app-config
+              mountPath: /config/application.yaml
+              subPath: application.yaml
+              readOnly: true
+      volumes:
+        - name: app-config
+          configMap:
+            name: edc-administration-api-client-config

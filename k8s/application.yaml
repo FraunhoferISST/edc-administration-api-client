@@ -1,0 +1,17 @@
+edc:
+  url:
+    controlplane: http://jad.localhost/api/management
+    identityhub: http://jad.localhost/api/identity
+    issuerservice: http://jad.localhost/api/issuer/admin
+tokenexchange:
+  jwtlet:
+    url: http://jwtlet.edc-v.svc.cluster.local:8080
+  serviceaccount:
+    token:
+      mountpath: /var/run/secrets/edc/serviceaccount/token
+spring:
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://keycloak.jad-auth.svc.cluster.local:80/realms/jad-dev
