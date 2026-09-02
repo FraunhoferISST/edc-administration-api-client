@@ -14,4 +14,8 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: http://keycloak.jad-auth.svc.cluster.local:80/realms/jad-dev
+          issuer-uri: http://keycloak.jad.localhost/realms/jad-dev
+          jwk-set-uri: http://keycloak.jad-auth.svc.cluster.local/realms/jad-dev/protocol/openid-connect/certs
+logging:
+  level:
+    org.springframework: DEBUG
