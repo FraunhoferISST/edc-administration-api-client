@@ -47,7 +47,7 @@ import static org.eclipse.dataspace.client.edc.api.administration.token.TokenExc
 public class TokenExchangeService {
 
     public static final String DEFAULT_SA_TOKEN_MOUNT_PATH = "/var/run/secrets/kubernetes.io/serviceaccount/token";
-    private static final String PARTICIPANT_CONTEXT_ID_CLAIM = "participantContextId";
+    private static final String DEFAULT_PARTICIPANT_CONTEXT_ID_CLAIM = "participantContextId";
 
     private final TypeReference<Map<String, String>> STRING_MAP = new TypeReference<>() {
     };
@@ -56,25 +56,28 @@ public class TokenExchangeService {
 
     private final String jwtletTokenUrl;
     private final String saTokenMountPath;
+    private final String participantContextIdClaim;
     private final ResourceLoader resourceLoader;
     private final OkHttpClient httpClient;
     private final ObjectMapper objectMapper;
 
     public TokenExchangeService(@Value("${tokenexchange.jwtlet.url}") String jwtletTokenUrl,
-                                @Value("${tokenexchange.serviceaccount.token.mountpath:" + DEFAULT_SA_TOKEN_MOUNT_PATH + "}") String saTokenMountPath,
-                                ResourceLoader resourceLoader, OkHttpClient httpClient,
-                                ObjectMapper objectMapper) {
+                                 @Value("${tokenexchange.serviceaccount.token.mountpath:" + DEFAULT_SA_TOKEN_MOUNT_PATH + "}") String saTokenMountPath,
+                                 @Value("${tokenexchange.participant-context-id-claim:" + DEFAULT_PARTICIPANT_CONTEXT_ID_CLAIM + "}") String participantContextIdClaim,
+                                 ResourceLoader resourceLoader, OkHttpClient httpClient,
+                                 ObjectMapper objectMapper) {
         this.jwtletTokenUrl = jwtletTokenUrl;
         this.saTokenMountPath = saTokenMountPath;
+        this.participantContextIdClaim = participantContextIdClaim;
         this.resourceLoader = resourceLoader;
         this.httpClient = httpClient;
         this.objectMapper = objectMapper;
     }
 
     public String exchangeToken(Jwt jwt) throws TokenExchangeException {
-        var participantContextId = jwt.getClaimAsString(PARTICIPANT_CONTEXT_ID_CLAIM);
+        var participantContextId = jwt.getClaimAsString(participantContextIdClaim);
         if (participantContextId == null) {
-            var message = "Missing '%s' claim in JWT.".formatted(PARTICIPANT_CONTEXT_ID_CLAIM);
+            var message = "Missing '%s' claim in JWT.".formatted(participantContextIdClaim);
             logger.error(message);
             throw new TokenExchangeException(message);
         }

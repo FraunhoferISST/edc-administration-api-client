@@ -6,6 +6,7 @@ edc:
 tokenexchange:
   jwtlet:
     url: http://jwtlet.edc-v.svc.cluster.local:8080
+  participant-context-id-claim: participant_context_id
   serviceaccount:
     token:
       mountpath: /var/run/secrets/edc/serviceaccount/token
