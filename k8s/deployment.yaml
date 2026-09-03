@@ -20,9 +20,13 @@ spec:
           ports:
             - containerPort: 8080
               name: http
+            - containerPort: 5005
+              name: debug
           env:
             - name: SPRING_CONFIG_ADDITIONAL_LOCATION
               value: /config/
+            - name: JAVA_TOOL_OPTIONS
+              value: "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005"
           volumeMounts:
             - name: app-config
               mountPath: /config/application.yaml

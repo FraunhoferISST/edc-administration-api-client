@@ -19,6 +19,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import okhttp3.FormBody;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
+import okio.Buffer;
 import org.eclipse.dataspace.client.edc.api.administration.exception.TokenExchangeException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -84,6 +85,13 @@ public class TokenExchangeService {
         var saToken = readSaTokenFromFile();
 
         var tokenExchangeRequest = createTokenExchangeRequest(saToken, participantContextId);
+        try {
+            var buffer = new Buffer();
+            tokenExchangeRequest.newBuilder().build().body().writeTo(buffer);
+            logger.info("BODY", buffer.readUtf8());
+        } catch (IOException e) {
+
+        }
 
         try (var response = httpClient.newCall(tokenExchangeRequest).execute()) {
             if (response.isSuccessful()) {
@@ -127,9 +135,7 @@ public class TokenExchangeService {
                 .add(GRANT_TYPE, GRANT_TYPE_TOKEN_EXCHANGE)
                 .add(SUBJECT_TOKEN, saToken)
                 .add(SUBJECT_TOKEN_TYPE, SUBJECT_TOKEN_TYPE_JWT)
-                .add(RESOURCE, participantContextId)
-                .add(SCOPE, "admin") //TODO extract required scope from request to proxy
-                .add(AUDIENCE, TOKEN_AUDIENCE);
+                .add(RESOURCE, participantContextId);
 
         return new Request.Builder()
                 .url(jwtletTokenUrl)
