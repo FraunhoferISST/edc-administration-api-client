@@ -23,14 +23,14 @@ import org.eclipse.dataspace.client.edc.api.administration.exception.TokenExchan
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.ResourceLoader;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
-import org.springframework.util.FileCopyUtils;
 
 import java.io.IOException;
-import java.io.InputStreamReader;
+import java.net.URI;
 import java.util.Map;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.eclipse.dataspace.client.edc.api.administration.token.TokenExchangeConstants.AUDIENCE;
@@ -57,19 +57,17 @@ public class TokenExchangeService {
     private final String jwtletTokenUrl;
     private final String saTokenMountPath;
     private final String participantContextIdClaim;
-    private final ResourceLoader resourceLoader;
     private final OkHttpClient httpClient;
     private final ObjectMapper objectMapper;
 
     public TokenExchangeService(@Value("${tokenexchange.jwtlet.url}") String jwtletTokenUrl,
                                  @Value("${tokenexchange.serviceaccount.token.mountpath:" + DEFAULT_SA_TOKEN_MOUNT_PATH + "}") String saTokenMountPath,
                                  @Value("${tokenexchange.participant-context-id-claim:" + DEFAULT_PARTICIPANT_CONTEXT_ID_CLAIM + "}") String participantContextIdClaim,
-                                 ResourceLoader resourceLoader, OkHttpClient httpClient,
+                                 OkHttpClient httpClient,
                                  ObjectMapper objectMapper) {
         this.jwtletTokenUrl = jwtletTokenUrl;
         this.saTokenMountPath = saTokenMountPath;
         this.participantContextIdClaim = participantContextIdClaim;
-        this.resourceLoader = resourceLoader;
         this.httpClient = httpClient;
         this.objectMapper = objectMapper;
     }
@@ -111,10 +109,13 @@ public class TokenExchangeService {
     }
 
     private String readSaTokenFromFile() throws TokenExchangeException {
-        var file = resourceLoader.getResource(saTokenMountPath);
-        try (var reader = new InputStreamReader(file.getInputStream(), UTF_8)) {
-            return FileCopyUtils.copyToString(reader).trim();
-        } catch (IOException e) {
+        try {
+            var tokenPath = saTokenMountPath.startsWith("file:")
+                    ? Path.of(URI.create(saTokenMountPath))
+                    : Path.of(saTokenMountPath);
+
+            return Files.readString(tokenPath, UTF_8).trim();
+        } catch (IOException | RuntimeException e) {
             var message = "Failed to read Service Account token";
             logger.error(message, e);
             throw new TokenExchangeException(message, e);
