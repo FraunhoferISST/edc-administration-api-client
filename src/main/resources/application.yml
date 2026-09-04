@@ -6,6 +6,19 @@ edc:
 tokenexchange:
   jwtlet:
     url: https://<jwtlet-host>
+  request:
+    parameters:
+      grant-type: grant_type
+      subject-token: subject_token
+      subject-token-type: subject_token_type
+      resource: resource
+      scope: scope
+      audience: audience
+    values:
+      grant-type-token-exchange: urn:ietf:params:oauth:grant-type:token-exchange
+      subject-token-type-jwt: urn:ietf:params:oauth:token-type:jwt
+      scope: read,write
+      audience: edcv
   participant-context-id-claim: participant_context_id
   serviceaccount:
     token:

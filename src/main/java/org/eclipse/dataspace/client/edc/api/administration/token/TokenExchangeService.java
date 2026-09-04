@@ -23,7 +23,6 @@ import okio.Buffer;
 import org.eclipse.dataspace.client.edc.api.administration.exception.TokenExchangeException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 
@@ -34,47 +33,29 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.eclipse.dataspace.client.edc.api.administration.token.TokenExchangeConstants.AUDIENCE;
-import static org.eclipse.dataspace.client.edc.api.administration.token.TokenExchangeConstants.GRANT_TYPE;
-import static org.eclipse.dataspace.client.edc.api.administration.token.TokenExchangeConstants.GRANT_TYPE_TOKEN_EXCHANGE;
-import static org.eclipse.dataspace.client.edc.api.administration.token.TokenExchangeConstants.RESOURCE;
-import static org.eclipse.dataspace.client.edc.api.administration.token.TokenExchangeConstants.SCOPE;
-import static org.eclipse.dataspace.client.edc.api.administration.token.TokenExchangeConstants.SUBJECT_TOKEN;
-import static org.eclipse.dataspace.client.edc.api.administration.token.TokenExchangeConstants.SUBJECT_TOKEN_TYPE;
-import static org.eclipse.dataspace.client.edc.api.administration.token.TokenExchangeConstants.SUBJECT_TOKEN_TYPE_JWT;
-import static org.eclipse.dataspace.client.edc.api.administration.token.TokenExchangeConstants.TOKEN_AUDIENCE;
-import static org.eclipse.dataspace.client.edc.api.administration.token.TokenExchangeConstants.TOKEN_SCOPE;
 
 @Service
 public class TokenExchangeService {
-
-    public static final String DEFAULT_SA_TOKEN_MOUNT_PATH = "/var/run/secrets/kubernetes.io/serviceaccount/token";
-    private static final String DEFAULT_PARTICIPANT_CONTEXT_ID_CLAIM = "participantContextId";
 
     private final TypeReference<Map<String, String>> STRING_MAP = new TypeReference<>() {
     };
 
     private final Logger logger = LoggerFactory.getLogger(TokenExchangeService.class);
 
-    private final String jwtletTokenUrl;
-    private final String saTokenMountPath;
-    private final String participantContextIdClaim;
+    private final TokenExchangeProperties tokenExchangeProperties;
     private final OkHttpClient httpClient;
     private final ObjectMapper objectMapper;
 
-    public TokenExchangeService(@Value("${tokenexchange.jwtlet.url}") String jwtletTokenUrl,
-                                 @Value("${tokenexchange.serviceaccount.token.mountpath:" + DEFAULT_SA_TOKEN_MOUNT_PATH + "}") String saTokenMountPath,
-                                 @Value("${tokenexchange.participant-context-id-claim:" + DEFAULT_PARTICIPANT_CONTEXT_ID_CLAIM + "}") String participantContextIdClaim,
-                                 OkHttpClient httpClient,
-                                 ObjectMapper objectMapper) {
-        this.jwtletTokenUrl = jwtletTokenUrl;
-        this.saTokenMountPath = saTokenMountPath;
-        this.participantContextIdClaim = participantContextIdClaim;
+    public TokenExchangeService(TokenExchangeProperties tokenExchangeProperties,
+                                OkHttpClient httpClient,
+                                ObjectMapper objectMapper) {
+        this.tokenExchangeProperties = tokenExchangeProperties;
         this.httpClient = httpClient;
         this.objectMapper = objectMapper;
     }
 
     public String exchangeToken(Jwt jwt) throws TokenExchangeException {
+        var participantContextIdClaim = tokenExchangeProperties.getParticipantContextIdClaim();
         var participantContextId = jwt.getClaimAsString(participantContextIdClaim);
         if (participantContextId == null) {
             var message = "Missing '%s' claim in JWT.".formatted(participantContextIdClaim);
@@ -120,6 +101,7 @@ public class TokenExchangeService {
 
     private String readSaTokenFromFile() throws TokenExchangeException {
         try {
+            var saTokenMountPath = tokenExchangeProperties.getServiceaccount().getToken().getMountpath();
             var tokenPath = saTokenMountPath.startsWith("file:")
                     ? Path.of(URI.create(saTokenMountPath))
                     : Path.of(saTokenMountPath);
@@ -133,16 +115,19 @@ public class TokenExchangeService {
     }
 
     private Request createTokenExchangeRequest(String saToken, String participantContextId) {
+        var parameters = tokenExchangeProperties.getRequest().getParameters();
+        var values = tokenExchangeProperties.getRequest().getValues();
+
         var formBuilder = new FormBody.Builder()
-                .add(GRANT_TYPE, GRANT_TYPE_TOKEN_EXCHANGE)
-                .add(SUBJECT_TOKEN, saToken)
-                .add(SUBJECT_TOKEN_TYPE, SUBJECT_TOKEN_TYPE_JWT)
-                .add(SCOPE, TOKEN_SCOPE)
-                .add(AUDIENCE, TOKEN_AUDIENCE)
-                .add(RESOURCE, participantContextId);
+                .add(parameters.getGrantType(), values.getGrantTypeTokenExchange())
+                .add(parameters.getSubjectToken(), saToken)
+                .add(parameters.getSubjectTokenType(), values.getSubjectTokenTypeJwt())
+                .add(parameters.getScope(), values.getScope())
+                .add(parameters.getAudience(), values.getAudience())
+                .add(parameters.getResource(), participantContextId);
 
         return new Request.Builder()
-                .url(jwtletTokenUrl)
+                .url(tokenExchangeProperties.getJwtlet().getUrl())
                 .post(formBuilder.build())
                 .build();
     }
