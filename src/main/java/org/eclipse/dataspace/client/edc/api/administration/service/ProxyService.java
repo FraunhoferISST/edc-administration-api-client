@@ -91,7 +91,12 @@ public class ProxyService {
 
             if (response.body() != null) {
                 var responseBody = response.body().string();
-                responseBuilder.responseBody(objectMapper.readValue(responseBody, STRING_OBJECT_MAP));
+                logger.info("ResponseBody: {}", responseBody);
+                if (response.isSuccessful()) {
+                    responseBuilder.responseBody(objectMapper.readValue(responseBody, STRING_OBJECT_MAP));
+                } else {
+                    responseBuilder.responseBody(responseBody);
+                }
             }
 
             return responseBuilder.build();

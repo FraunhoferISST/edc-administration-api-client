@@ -21,7 +21,7 @@ public class ProxyResponse {
 
     private int statusCode;
     private Map<String, String> headers = new HashMap<>();
-    private Map<String, Object> responseBody;
+    private Object responseBody;
 
     public int statusCode() {
         return statusCode;
@@ -31,7 +31,7 @@ public class ProxyResponse {
         return headers;
     }
 
-    public Map<String, Object> responseBody() {
+    public Object responseBody() {
         return responseBody;
     }
 
@@ -52,7 +52,7 @@ public class ProxyResponse {
             return this;
         }
 
-        public Builder responseBody(Map<String, Object> responseBody) {
+        public Builder responseBody(Object responseBody) {
             this.response.responseBody = responseBody;
             return this;
         }

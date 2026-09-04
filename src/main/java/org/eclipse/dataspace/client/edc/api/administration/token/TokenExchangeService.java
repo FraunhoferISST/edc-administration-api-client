@@ -43,6 +43,7 @@ import static org.eclipse.dataspace.client.edc.api.administration.token.TokenExc
 import static org.eclipse.dataspace.client.edc.api.administration.token.TokenExchangeConstants.SUBJECT_TOKEN_TYPE;
 import static org.eclipse.dataspace.client.edc.api.administration.token.TokenExchangeConstants.SUBJECT_TOKEN_TYPE_JWT;
 import static org.eclipse.dataspace.client.edc.api.administration.token.TokenExchangeConstants.TOKEN_AUDIENCE;
+import static org.eclipse.dataspace.client.edc.api.administration.token.TokenExchangeConstants.TOKEN_SCOPE;
 
 @Service
 public class TokenExchangeService {
@@ -88,9 +89,10 @@ public class TokenExchangeService {
         try {
             var buffer = new Buffer();
             tokenExchangeRequest.newBuilder().build().body().writeTo(buffer);
-            logger.info("BODY", buffer.readUtf8());
+            var requestBody = buffer.readUtf8();
+            logger.info("BODY: {}", requestBody);
         } catch (IOException e) {
-
+            logger.error(e.getMessage());
         }
 
         try (var response = httpClient.newCall(tokenExchangeRequest).execute()) {
@@ -135,6 +137,8 @@ public class TokenExchangeService {
                 .add(GRANT_TYPE, GRANT_TYPE_TOKEN_EXCHANGE)
                 .add(SUBJECT_TOKEN, saToken)
                 .add(SUBJECT_TOKEN_TYPE, SUBJECT_TOKEN_TYPE_JWT)
+                .add(SCOPE, TOKEN_SCOPE)
+                .add(AUDIENCE, TOKEN_AUDIENCE)
                 .add(RESOURCE, participantContextId);
 
         return new Request.Builder()

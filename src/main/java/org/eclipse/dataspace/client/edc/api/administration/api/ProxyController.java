@@ -55,9 +55,9 @@ public class ProxyController {
     }
 
     @RequestMapping(value = CONTROL_PLANE_PROXY_BASE_PATH + "/**", method = {OPTIONS, GET, POST, PUT, DELETE})
-    public ResponseEntity<Map<String, Object>> proxyControlPlaneRequest(@AuthenticationPrincipal Jwt jwt,
-                                                                        @RequestBody(required = false) Map<String, Object> requestBody,
-                                                                        HttpServletRequest request) throws TokenExchangeException, ProxyException {
+    public ResponseEntity<Object> proxyControlPlaneRequest(@AuthenticationPrincipal Jwt jwt,
+                                                           @RequestBody(required = false) Map<String, Object> requestBody,
+                                                           HttpServletRequest request) throws TokenExchangeException, ProxyException {
         var proxyRequest = createProxyRequest(jwt, CONTROL_PLANE, requestBody, request);
 
         var proxyResponse = proxyService.proxyControlPlaneRequest(proxyRequest);
@@ -66,9 +66,9 @@ public class ProxyController {
     }
 
     @RequestMapping(value = IDENTITY_HUB_PROXY_BASE_PATH + "/**", method = {OPTIONS, GET, POST, PUT, DELETE})
-    public ResponseEntity<Map<String, Object>> proxyIdentityHubRequest(@AuthenticationPrincipal Jwt jwt,
-                                                                       @RequestBody(required = false) Map<String, Object> requestBody,
-                                                                       HttpServletRequest request) throws TokenExchangeException, ProxyException {
+    public ResponseEntity<Object> proxyIdentityHubRequest(@AuthenticationPrincipal Jwt jwt,
+                                                          @RequestBody(required = false) Map<String, Object> requestBody,
+                                                          HttpServletRequest request) throws TokenExchangeException, ProxyException {
         var proxyRequest = createProxyRequest(jwt, IDENTITY_HUB, requestBody, request);
 
         var proxyResponse = proxyService.proxyIdentityHubRequest(proxyRequest);
@@ -77,9 +77,9 @@ public class ProxyController {
     }
 
     @RequestMapping(value = ISSUER_SERVICE_PROXY_BASE_PATH + "/**", method = {OPTIONS, GET, POST, PUT, DELETE})
-    public ResponseEntity<Map<String, Object>> proxyIssuerServiceRequest(@AuthenticationPrincipal Jwt jwt,
-                                                                         @RequestBody(required = false) Map<String, Object> requestBody,
-                                                                         HttpServletRequest request) throws TokenExchangeException, ProxyException {
+    public ResponseEntity<Object> proxyIssuerServiceRequest(@AuthenticationPrincipal Jwt jwt,
+                                                            @RequestBody(required = false) Map<String, Object> requestBody,
+                                                            HttpServletRequest request) throws TokenExchangeException, ProxyException {
         var proxyRequest = createProxyRequest(jwt, ISSUER_SERVICE, requestBody, request);
 
         var proxyResponse = proxyService.proxyIssuerServiceRequest(proxyRequest);
@@ -123,7 +123,7 @@ public class ProxyController {
         return fullPath.substring(endpointPrefix.length());
     }
 
-    private ResponseEntity<Map<String, Object>> toResponseEntity(ProxyResponse proxyResponse) {
+    private ResponseEntity<Object> toResponseEntity(ProxyResponse proxyResponse) {
         var builder = ResponseEntity.status(proxyResponse.statusCode());
         builder.body(proxyResponse.responseBody());
         proxyResponse.headers().forEach(builder::header);

@@ -23,7 +23,8 @@ public interface TokenExchangeConstants {
     String SCOPE = "scope";
     String AUDIENCE = "audience";
 
-    String GRANT_TYPE_TOKEN_EXCHANGE = "ietf:params:oauth:grant-type:token-exchange";
+    String GRANT_TYPE_TOKEN_EXCHANGE = "urn:ietf:params:oauth:grant-type:token-exchange";
     String SUBJECT_TOKEN_TYPE_JWT = "urn:ietf:params:oauth:token-type:jwt";
+    String TOKEN_SCOPE = "read,write";
     String TOKEN_AUDIENCE = "edcv";
 }
