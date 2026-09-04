@@ -115,9 +115,9 @@ public class ProxyController {
         }
 
         var endpointPrefix = switch (service) {
-            case CONTROL_PLANE -> CONTROL_PLANE_PROXY_BASE_PATH;
-            case IDENTITY_HUB -> IDENTITY_HUB_PROXY_BASE_PATH;
-            case ISSUER_SERVICE -> ISSUER_SERVICE_PROXY_BASE_PATH;
+            case CONTROL_PLANE -> "/proxy" + CONTROL_PLANE_PROXY_BASE_PATH;
+            case IDENTITY_HUB -> "/proxy" + IDENTITY_HUB_PROXY_BASE_PATH;
+            case ISSUER_SERVICE -> "/proxy" + ISSUER_SERVICE_PROXY_BASE_PATH;
         };
 
         return fullPath.substring(endpointPrefix.length());
