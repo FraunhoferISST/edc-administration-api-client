@@ -67,14 +67,14 @@ public class TokenExchangeService {
         var saToken = readSaTokenFromFile();
 
         var tokenExchangeRequest = createTokenExchangeRequest(saToken, participantContextId);
-        try {
-            var buffer = new Buffer();
-            tokenExchangeRequest.newBuilder().build().body().writeTo(buffer);
-            var requestBody = buffer.readUtf8();
-            logger.info("BODY: {}", requestBody);
-        } catch (IOException e) {
-            logger.error(e.getMessage());
-        }
+        // try {
+        //     var buffer = new Buffer();
+        //     tokenExchangeRequest.newBuilder().build().body().writeTo(buffer);
+        //     var requestBody = buffer.readUtf8();
+        //     logger.info("BODY: {}", requestBody);
+        // } catch (IOException e) {
+        //     logger.error(e.getMessage());
+        // }
 
         try (var response = httpClient.newCall(tokenExchangeRequest).execute()) {
             if (response.isSuccessful()) {

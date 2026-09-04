@@ -125,8 +125,13 @@ public class ProxyController {
 
     private ResponseEntity<Object> toResponseEntity(ProxyResponse proxyResponse) {
         var builder = ResponseEntity.status(proxyResponse.statusCode());
-        builder.body(proxyResponse.responseBody());
-        proxyResponse.headers().forEach(builder::header);
-        return builder.build();
+        proxyResponse.headers().forEach((name, value) -> {
+            if (!name.equalsIgnoreCase("Content-Length")
+                    && !name.equalsIgnoreCase("Transfer-Encoding")
+                    && !name.equalsIgnoreCase("Connection")) {
+                builder.header(name, value);
+            }
+        });
+        return builder.body(proxyResponse.responseBody());
     }
 }

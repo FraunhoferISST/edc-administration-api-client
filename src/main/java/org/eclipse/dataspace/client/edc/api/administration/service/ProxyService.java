@@ -25,17 +25,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
-import java.util.Map;
 
 @Service
 public class ProxyService {
-
-    private final TypeReference<Map<String, Object>> STRING_OBJECT_MAP = new TypeReference<>() {
-    };
 
     private final Logger logger = LoggerFactory.getLogger(ProxyService.class);
 
@@ -83,6 +78,9 @@ public class ProxyService {
             requestBuilder.method(proxyRequest.httpMethod(), null);
         }
 
+        logger.info("PROXY URL: {}", requestBuilder.getUrl$okhttp());
+        logger.info("TOKEN: {}", proxyRequest.token());
+
         try(var response = httpClient.newCall(requestBuilder.build()).execute()) {
             var responseBuilder = new ProxyResponse.Builder()
                     .statusCode(response.code());
@@ -93,7 +91,7 @@ public class ProxyService {
                 var responseBody = response.body().string();
                 logger.info("ResponseBody: {}", responseBody);
                 if (response.isSuccessful()) {
-                    responseBuilder.responseBody(objectMapper.readValue(responseBody, STRING_OBJECT_MAP));
+                    responseBuilder.responseBody(objectMapper.readValue(responseBody, Object.class));
                 } else {
                     responseBuilder.responseBody(responseBody);
                 }
