@@ -28,7 +28,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Map;
+import tools.jackson.databind.JsonNode;
 
 import static org.eclipse.dataspace.client.edc.api.administration.api.ProxyApiPaths.CONTROL_PLANE_PROXY_BASE_PATH;
 import static org.eclipse.dataspace.client.edc.api.administration.api.ProxyApiPaths.IDENTITY_HUB_PROXY_BASE_PATH;
@@ -56,7 +56,7 @@ public class ProxyController {
 
     @RequestMapping(value = CONTROL_PLANE_PROXY_BASE_PATH + "/**", method = {OPTIONS, GET, POST, PUT, DELETE})
     public ResponseEntity<Object> proxyControlPlaneRequest(@AuthenticationPrincipal Jwt jwt,
-                                                           @RequestBody(required = false) Map<String, Object> requestBody,
+                                                           @RequestBody(required = false) JsonNode requestBody,
                                                            HttpServletRequest request) throws TokenExchangeException, ProxyException {
         var proxyRequest = createProxyRequest(jwt, CONTROL_PLANE, requestBody, request);
 
@@ -67,7 +67,7 @@ public class ProxyController {
 
     @RequestMapping(value = IDENTITY_HUB_PROXY_BASE_PATH + "/**", method = {OPTIONS, GET, POST, PUT, DELETE})
     public ResponseEntity<Object> proxyIdentityHubRequest(@AuthenticationPrincipal Jwt jwt,
-                                                          @RequestBody(required = false) Map<String, Object> requestBody,
+                                                          @RequestBody(required = false) JsonNode requestBody,
                                                           HttpServletRequest request) throws TokenExchangeException, ProxyException {
         var proxyRequest = createProxyRequest(jwt, IDENTITY_HUB, requestBody, request);
 
@@ -78,7 +78,7 @@ public class ProxyController {
 
     @RequestMapping(value = ISSUER_SERVICE_PROXY_BASE_PATH + "/**", method = {OPTIONS, GET, POST, PUT, DELETE})
     public ResponseEntity<Object> proxyIssuerServiceRequest(@AuthenticationPrincipal Jwt jwt,
-                                                            @RequestBody(required = false) Map<String, Object> requestBody,
+                                                            @RequestBody(required = false) JsonNode requestBody,
                                                             HttpServletRequest request) throws TokenExchangeException, ProxyException {
         var proxyRequest = createProxyRequest(jwt, ISSUER_SERVICE, requestBody, request);
 
@@ -87,7 +87,7 @@ public class ProxyController {
         return toResponseEntity(proxyResponse);
     }
 
-    private ProxyRequest createProxyRequest(Jwt jwt, ProxyRequest.Service service, Map<String, Object> requestBody, HttpServletRequest request) throws TokenExchangeException {
+    private ProxyRequest createProxyRequest(Jwt jwt, ProxyRequest.Service service, JsonNode requestBody, HttpServletRequest request) throws TokenExchangeException {
         var token = tokenExchangeService.exchangeToken(jwt);
 
         var builder = new ProxyRequest.Builder()

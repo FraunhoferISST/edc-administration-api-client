@@ -14,6 +14,8 @@
 
 package org.eclipse.dataspace.client.edc.api.administration.domain;
 
+import tools.jackson.databind.JsonNode;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -26,7 +28,7 @@ public class ProxyRequest {
     private String path;
     private String queryParams;
     private Map<String, String> headers = new HashMap<>();
-    private Map<String, Object> requestBody;
+    private JsonNode requestBody;
 
     public enum Service {
         CONTROL_PLANE, IDENTITY_HUB, ISSUER_SERVICE
@@ -56,7 +58,7 @@ public class ProxyRequest {
         return headers;
     }
 
-    public Map<String, Object> requestBody() {
+    public JsonNode requestBody() {
         return requestBody;
     }
 
@@ -101,7 +103,7 @@ public class ProxyRequest {
             return this;
         }
 
-        public Builder requestBody(Map<String, Object> requestBody) {
+        public Builder requestBody(JsonNode requestBody) {
             this.request.requestBody = requestBody;
             return this;
         }
