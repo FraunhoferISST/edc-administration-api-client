@@ -19,5 +19,6 @@ public interface ProxyApiPaths {
     String CONTROL_PLANE_PROXY_BASE_PATH = "/controlplane";
     String IDENTITY_HUB_PROXY_BASE_PATH = "/identityhub";
     String ISSUER_SERVICE_PROXY_BASE_PATH = "/issuerservice";
+    String DEFAULT_API_BASE_PATH = "/default";
 
 }

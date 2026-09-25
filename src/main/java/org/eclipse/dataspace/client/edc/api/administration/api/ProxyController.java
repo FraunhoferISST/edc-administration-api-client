@@ -31,9 +31,11 @@ import org.springframework.web.bind.annotation.RestController;
 import tools.jackson.databind.JsonNode;
 
 import static org.eclipse.dataspace.client.edc.api.administration.api.ProxyApiPaths.CONTROL_PLANE_PROXY_BASE_PATH;
+import static org.eclipse.dataspace.client.edc.api.administration.api.ProxyApiPaths.DEFAULT_API_BASE_PATH;
 import static org.eclipse.dataspace.client.edc.api.administration.api.ProxyApiPaths.IDENTITY_HUB_PROXY_BASE_PATH;
 import static org.eclipse.dataspace.client.edc.api.administration.api.ProxyApiPaths.ISSUER_SERVICE_PROXY_BASE_PATH;
 import static org.eclipse.dataspace.client.edc.api.administration.domain.ProxyRequest.Service.CONTROL_PLANE;
+import static org.eclipse.dataspace.client.edc.api.administration.domain.ProxyRequest.Service.DEFAULT_API;
 import static org.eclipse.dataspace.client.edc.api.administration.domain.ProxyRequest.Service.IDENTITY_HUB;
 import static org.eclipse.dataspace.client.edc.api.administration.domain.ProxyRequest.Service.ISSUER_SERVICE;
 import static org.springframework.web.bind.annotation.RequestMethod.DELETE;
@@ -87,6 +89,17 @@ public class ProxyController {
         return toResponseEntity(proxyResponse);
     }
 
+    @RequestMapping(value = DEFAULT_API_BASE_PATH + "/**", method = {OPTIONS, GET, POST, PUT, DELETE})
+    public ResponseEntity<Object> proxyDefaultApiRequest(@AuthenticationPrincipal Jwt jwt,
+                                                            @RequestBody(required = false) JsonNode requestBody,
+                                                            HttpServletRequest request) throws TokenExchangeException, ProxyException {
+        var proxyRequest = createProxyRequest(jwt, DEFAULT_API, requestBody, request);
+
+        var proxyResponse = proxyService.proxyDefaultApiRequest(proxyRequest);
+
+        return toResponseEntity(proxyResponse);
+    }
+
     private ProxyRequest createProxyRequest(Jwt jwt, ProxyRequest.Service service, JsonNode requestBody, HttpServletRequest request) throws TokenExchangeException {
         var token = tokenExchangeService.exchangeToken(jwt);
 
@@ -118,6 +131,7 @@ public class ProxyController {
             case CONTROL_PLANE -> "/proxy" + CONTROL_PLANE_PROXY_BASE_PATH;
             case IDENTITY_HUB -> "/proxy" + IDENTITY_HUB_PROXY_BASE_PATH;
             case ISSUER_SERVICE -> "/proxy" + ISSUER_SERVICE_PROXY_BASE_PATH;
+            case DEFAULT_API -> "/proxy" + DEFAULT_API_BASE_PATH;
         };
 
         return fullPath.substring(endpointPrefix.length());

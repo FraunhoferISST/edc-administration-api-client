@@ -3,6 +3,7 @@ edc:
     controlplane: http://jad.localhost/api/management
     identityhub: http://jad.localhost/api/identity
     issuerservice: http://jad.localhost/api/issuer/admin
+    defaultapi: http://controlplane.edc-v.svc.cluster.local:8080/api
 tokenexchange:
   jwtlet:
     url: http://jwtlet.edc-v.svc.cluster.local:8080/token

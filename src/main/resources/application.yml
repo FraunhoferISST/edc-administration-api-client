@@ -3,6 +3,7 @@ edc:
     controlplane: https://<control-plane-host>
     identityhub: https://<identity-hub-host>
     issuerservice: https://<issuer-service-host>
+    defaultapi: https://<default-api-host>
 tokenexchange:
   jwtlet:
     url: https://<jwtlet-host>

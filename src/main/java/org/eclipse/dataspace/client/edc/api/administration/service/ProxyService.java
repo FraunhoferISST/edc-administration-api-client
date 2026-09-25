@@ -37,6 +37,7 @@ public class ProxyService {
     private final String controlPlaneBaseUrl;
     private final String identityHubBaseUrl;
     private final String issuerServiceBaseUrl;
+    private final String defaultApiBaseUrl;
 
     private final ObjectMapper objectMapper;
     private final OkHttpClient httpClient;
@@ -44,10 +45,12 @@ public class ProxyService {
     public ProxyService(@Value("${edc.url.controlplane}") String controlPlaneBaseUrl,
                         @Value("${edc.url.identityhub}") String identityHubBaseUrl,
                         @Value("${edc.url.issuerservice}") String issuerServiceBaseUrl,
+                        @Value("${edc.url.defaultapi}") String defaultApiBaseUrl,
                         ObjectMapper objectMapper, OkHttpClient httpClient) {
         this.controlPlaneBaseUrl = controlPlaneBaseUrl;
         this.identityHubBaseUrl = identityHubBaseUrl;
         this.issuerServiceBaseUrl = issuerServiceBaseUrl;
+        this.defaultApiBaseUrl = defaultApiBaseUrl;
         this.objectMapper = objectMapper;
         this.httpClient = httpClient;
     }
@@ -62,6 +65,10 @@ public class ProxyService {
 
     public ProxyResponse proxyIssuerServiceRequest(ProxyRequest proxyRequest) throws ProxyException {
         return proxyRequest(proxyRequest, issuerServiceBaseUrl);
+    }
+
+    public ProxyResponse proxyDefaultApiRequest(ProxyRequest proxyRequest) throws ProxyException {
+        return proxyRequest(proxyRequest, defaultApiBaseUrl);
     }
 
     private ProxyResponse proxyRequest(ProxyRequest proxyRequest, String baseUrl) throws ProxyException {
