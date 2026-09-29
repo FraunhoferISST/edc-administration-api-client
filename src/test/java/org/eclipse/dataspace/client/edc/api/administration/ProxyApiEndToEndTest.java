@@ -69,6 +69,7 @@ class ProxyApiEndToEndTest {
         registry.add("edc.url.controlplane", () -> "http://localhost:" + wireMock.getPort() + "/cp");
         registry.add("edc.url.identityhub", () -> "http://localhost:" + wireMock.getPort() + "/ih");
         registry.add("edc.url.issuerservice", () -> "http://localhost:" + wireMock.getPort() + "/issuer");
+        registry.add("edc.url.defaultapi", () -> "http://localhost:" + wireMock.getPort() + "/base");
         registry.add("tokenexchange.jwtlet.url", () -> "http://localhost:" + wireMock.getPort() + "/jwtlet/token");
         registry.add("tokenexchange.serviceaccount.token.mountpath", () -> "src/test/resources/mock-sa-token");
     }
@@ -170,7 +171,9 @@ class ProxyApiEndToEndTest {
             Arguments.of("PUT", "/issuer/participants/participant-context-1/holders", "/proxy/issuerservice/participants/participant-context-1/holders", 200),
             Arguments.of("PUT", "/issuer/participants/participant-context-1/holders", "/proxy/issuerservice/participants/participant-context-1/holders", 400),
             Arguments.of("DELETE", "/issuer/participants/participant-context-1/holders", "/proxy/issuerservice/participants/participant-context-1/holders", 200),
-            Arguments.of("DELETE", "/issuer/participants/participant-context-1/holders", "/proxy/issuerservice/participants/participant-context-1/holders", 400)
+            Arguments.of("DELETE", "/issuer/participants/participant-context-1/holders", "/proxy/issuerservice/participants/participant-context-1/holders", 400),
+            Arguments.of("GET", "/base/health", "/proxy/default/health", 200),
+            Arguments.of("GET", "/base/health", "/proxy/default/health", 400)
         );
     }
 
