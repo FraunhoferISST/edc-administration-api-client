@@ -111,7 +111,9 @@ public class ProxyController {
                 .queryParams(request.getQueryString());
 
         //TODO should more headers be proxied?
-        builder.header("Content-Type", request.getHeader("Content-Type"));
+        if (request.getHeader("Content-Type") != null) {
+            builder.header("Content-Type", request.getHeader("Content-Type"));
+        }
 
         if (requestBody != null) {
             builder.requestBody(requestBody);
