@@ -66,14 +66,6 @@ public class TokenExchangeService {
         var saToken = readSaTokenFromFile();
 
         var tokenExchangeRequest = createTokenExchangeRequest(saToken, participantContextId);
-        // try {
-        //     var buffer = new Buffer();
-        //     tokenExchangeRequest.newBuilder().build().body().writeTo(buffer);
-        //     var requestBody = buffer.readUtf8();
-        //     logger.info("BODY: {}", requestBody);
-        // } catch (IOException e) {
-        //     logger.error(e.getMessage());
-        // }
 
         try (var response = httpClient.newCall(tokenExchangeRequest).execute()) {
             if (response.isSuccessful()) {
@@ -107,7 +99,7 @@ public class TokenExchangeService {
 
             return Files.readString(tokenPath, UTF_8).trim();
         } catch (IOException | RuntimeException e) {
-            var message = "Failed to read Service Account token";
+            var message = "Failed to read Service Account token.";
             logger.error(message, e);
             throw new TokenExchangeException(message, e);
         }

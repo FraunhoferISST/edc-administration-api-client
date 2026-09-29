@@ -85,9 +85,6 @@ public class ProxyService {
             requestBuilder.method(proxyRequest.httpMethod(), null);
         }
 
-        logger.info("PROXY URL: {}", requestBuilder.getUrl$okhttp());
-        logger.info("TOKEN: {}", proxyRequest.token());
-
         try(var response = httpClient.newCall(requestBuilder.build()).execute()) {
             var responseBuilder = new ProxyResponse.Builder()
                     .statusCode(response.code());
@@ -96,9 +93,8 @@ public class ProxyService {
 
             if (response.body() != null) {
                 var responseBody = response.body().string();
-                logger.info("ResponseBody: {}", responseBody);
                 if (response.isSuccessful()) {
-                    if (responseBody != null && !responseBody.isBlank()) {
+                    if (!responseBody.isBlank()) {
                         responseBuilder.responseBody(objectMapper.readValue(responseBody, Object.class));
                     }
                 } else {
