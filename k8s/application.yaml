@@ -4,6 +4,7 @@ edc:
     identityhub: http://jad.localhost/api/identity
     issuerservice: http://jad.localhost/api/issuer/admin
     defaultapi: http://controlplane.edc-v.svc.cluster.local:8080/api
+    siglet: http://siglet.edc-v.svc.cluster.local:8080
 tokenexchange:
   jwtlet:
     url: http://jwtlet.edc-v.svc.cluster.local:8080/token
@@ -18,7 +19,7 @@ tokenexchange:
     values:
       grant-type-token-exchange: urn:ietf:params:oauth:grant-type:token-exchange
       subject-token-type-jwt: urn:ietf:params:oauth:token-type:jwt
-      scope: "read write management-api:admin"
+      scope: "read write management-api:admin siglet-token"
       audience: edcv
   participant-context-id-claim: participant_context_id
   serviceaccount:

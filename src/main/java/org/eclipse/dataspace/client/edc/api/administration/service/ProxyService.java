@@ -38,6 +38,7 @@ public class ProxyService {
     private final String identityHubBaseUrl;
     private final String issuerServiceBaseUrl;
     private final String defaultApiBaseUrl;
+    private final String sigletBaseUrl;
 
     private final ObjectMapper objectMapper;
     private final OkHttpClient httpClient;
@@ -46,11 +47,13 @@ public class ProxyService {
                         @Value("${edc.url.identityhub}") String identityHubBaseUrl,
                         @Value("${edc.url.issuerservice}") String issuerServiceBaseUrl,
                         @Value("${edc.url.defaultapi}") String defaultApiBaseUrl,
+                        @Value("${edc.url.siglet}") String sigletBaseUrl,
                         ObjectMapper objectMapper, OkHttpClient httpClient) {
         this.controlPlaneBaseUrl = controlPlaneBaseUrl;
         this.identityHubBaseUrl = identityHubBaseUrl;
         this.issuerServiceBaseUrl = issuerServiceBaseUrl;
         this.defaultApiBaseUrl = defaultApiBaseUrl;
+        this.sigletBaseUrl = sigletBaseUrl;
         this.objectMapper = objectMapper;
         this.httpClient = httpClient;
     }
@@ -69,6 +72,10 @@ public class ProxyService {
 
     public ProxyResponse proxyDefaultApiRequest(ProxyRequest proxyRequest) throws ProxyException {
         return proxyRequest(proxyRequest, defaultApiBaseUrl);
+    }
+
+    public ProxyResponse proxySigletRequest(ProxyRequest proxyRequest) throws ProxyException {
+        return proxyRequest(proxyRequest, sigletBaseUrl);
     }
 
     private ProxyResponse proxyRequest(ProxyRequest proxyRequest, String baseUrl) throws ProxyException {

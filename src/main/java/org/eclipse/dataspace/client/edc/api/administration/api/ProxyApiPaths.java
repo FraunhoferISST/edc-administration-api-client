@@ -20,5 +20,6 @@ public interface ProxyApiPaths {
     String IDENTITY_HUB_PROXY_BASE_PATH = "/identityhub";
     String ISSUER_SERVICE_PROXY_BASE_PATH = "/issuerservice";
     String DEFAULT_API_BASE_PATH = "/default";
+    String SIGLET_PROXY_BASE_PATH = "/siglet";
 
 }

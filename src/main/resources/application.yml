@@ -4,6 +4,7 @@ edc:
     identityhub: https://<identity-hub-host>
     issuerservice: https://<issuer-service-host>
     defaultapi: https://<default-api-host>
+    siglet: https://<siglet-host>
 tokenexchange:
   jwtlet:
     url: https://<jwtlet-host>

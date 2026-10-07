@@ -31,7 +31,7 @@ public class ProxyRequest {
     private JsonNode requestBody;
 
     public enum Service {
-        CONTROL_PLANE, IDENTITY_HUB, ISSUER_SERVICE, DEFAULT_API
+        CONTROL_PLANE, IDENTITY_HUB, ISSUER_SERVICE, DEFAULT_API, SIGLET
     }
 
     public Service service() {

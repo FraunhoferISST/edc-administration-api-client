@@ -60,6 +60,8 @@ accepts all EDC API requests under the sub-paths respective to the runtime:
 - `/controlplane/**` for control plane requests
 - `/identityhub/**` for identity hub requests
 - `/issuerservice/**` for issuer service requests
+- `/default/**` for the default API (e.g. health checks)
+- `/siglet/**` for Siglet token-proxy requests
 
 It will validate the received token against a Keycloak instance and request a token exchange from `JWTlet`, both of
 which are also configured in the `application.yaml`.
