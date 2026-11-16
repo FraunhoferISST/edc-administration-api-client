@@ -1,39 +1,38 @@
-FROM eclipse-temurin:25-jdk-alpine AS build
-WORKDIR /workspace
+# Build stage
+FROM gradle:9.5-jdk21 AS build
+WORKDIR /app
 
-COPY gradlew ./
+# Copy gradle files for dependency caching
+COPY build.gradle.kts settings.gradle.kts gradlew ./
 COPY gradle ./gradle
-RUN chmod +x ./gradlew
 
-COPY settings.gradle.kts build.gradle.kts ./
-#COPY gradle.properties* ./
+# Download dependencies (cached layer)
+RUN ./gradlew dependencies --no-daemon
 
+# Copy source code
 COPY src ./src
 
-RUN ./gradlew --no-daemon bootJar -x test
+# Build the application
+RUN ./gradlew bootJar --no-daemon
 
-RUN mkdir -p /build && cp build/libs/*.jar /build/app.jar
-
-FROM eclipse-temurin:25-jre-alpine AS layers
-WORKDIR /app
-COPY --from=build /build/app.jar app.jar
-RUN java -Djarmode=tools -jar app.jar extract --layers --launcher --destination extracted
-RUN mkdir -p extracted/snapshot-dependencies
-
-FROM eclipse-temurin:25-jre-alpine
+# Runtime stage
+FROM eclipse-temurin:21-jre-alpine
 WORKDIR /app
 
-RUN addgroup --system spring && adduser --system -G spring spring
-
-COPY --from=layers --chown=spring:spring /app/extracted/dependencies/ ./
-COPY --from=layers --chown=spring:spring /app/extracted/spring-boot-loader/ ./
-COPY --from=layers --chown=spring:spring /app/extracted/snapshot-dependencies/ ./
-COPY --from=layers --chown=spring:spring /app/extracted/application/ ./
-
+# Create non-root user
+RUN addgroup -S spring && adduser -S spring -G spring
 USER spring:spring
-EXPOSE 8080
 
-ENV JAVA_OPTS="-XX:MaxRAMPercentage=75 -XX:+ExitOnOutOfMemoryError"
+# Copy the built jar from build stage
+COPY --from=build /app/build/libs/*.jar app.jar
+
+ENV JAVA_TOOL_OPTIONS="-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005"
+
+# Expose application port
+EXPOSE 8081 5005
+
+# Set default profile
 ENV SPRING_PROFILES_ACTIVE=prod
 
-ENTRYPOINT ["sh", "-c", "exec java $JAVA_OPTS -cp /app org.springframework.boot.loader.launch.JarLauncher"]
+# Run the application
+ENTRYPOINT ["java", "-jar", "app.jar"]
